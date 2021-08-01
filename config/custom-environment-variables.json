@@ -1,4 +1,9 @@
 {
     "name": "ecommerce",
-    "jwtKey": "jwtPass"
-}
+    "jwtKey": "jwtPass",
+    "cloudinary": {
+        "cloudName": "cloud_name",
+        "apiKey": "api_key",
+        "apiSecrete": "api_secrete"
+    }
+}  

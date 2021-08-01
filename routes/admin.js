@@ -11,7 +11,7 @@ const admin = require('../middleware/admin');
 const superAdmin = require('../middleware/superAdmin');
 const wrapper = require('../middleware/wrapper');
 const bodyValidator = require('../middleware/requestBodyVerifier');
-const idValidator = require("../middleware/isValidator");
+const idValidator = require("../middleware/idVerifier");
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ const idAndAdminMiddleware = [ idValidator, auth, admin ];
 const adminBodyMiddlewarePut = [ auth, admin, bodyValidator(validatePut) ]
 const adminBodyMiddleware = [ auth, admin, bodyValidator(validatePass) ]
 
-router.get('/', adminMiddle, wrapper (async (req, res) => {
+router.get('/', adminMiddle, wrapper ( async (req, res) => {
     const admins = await Admin.find()
         .select({ password: 0 });
 
@@ -47,6 +47,7 @@ router.get('/:id', idAndAdminMiddleware, wrapper ( async (req, res) => {
 
     const admin = await Admin.findById(id)
         .select({ password: 0 });
+
     if (!admin) {
         return res.status(404).json({
             status: 404,
@@ -83,6 +84,7 @@ router.post('/register', bodyValidator(validate), wrapper ( async (req, res) => 
 
         const salt = await bcrypt.genSalt(10);
         password = await bcrypt.hash(password, salt);
+
         const admin = new Admin({
             name,
             email,
@@ -138,6 +140,7 @@ router.post('/login', bodyValidator(validateIn), wrapper ( async (req, res) => {
             });
         } else {
             const token = admin.generateToken();
+
             res.header('x-auth-token', token).status(200).json({
                 status: 200,
                 message: "success",
@@ -176,7 +179,11 @@ router.put('/edit', adminBodyMiddlewarePut, wrapper ( async (req, res) => {
         })
         await admin.save();
 
-        const toSend = _.pick(admin, ['name', 'phoneNumber', 'id', 'email', 'superAdmin']);
+        const toSend = _.pick(admin, [
+                'name', 'phoneNumber', 
+                'id', 'email', 'superAdmin'
+            ]
+        );
 
         res.status(200).json({
             status: 200,
@@ -197,7 +204,7 @@ router.put('/change-password', adminBodyMiddleware, wrapper ( async (req, res) =
     if (!isValid) {
         return res.status(400).json({
             status: 400,
-            message: 'something is wrong with either of the supplied valuees'
+            message: 'something is wrong with either of the supplied values'
         });
     } else {
         const toReturn = newPassword;

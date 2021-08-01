@@ -6,7 +6,7 @@ module.exports = function ( validator ) {
 
         if (error) {
             return res.status(400).json({
-                status: 200,
+                status: 400,
                 message: error.details[0].message
             });
         } else {

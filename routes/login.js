@@ -6,7 +6,7 @@ const { User, validateLogin } = require('../model/userM');
 const wrapper = require('../middleware/wrapper'); 
 const bodyValidator = require('../middleware/requestBodyVerifier');
 
-router.post('/', bodyValidator(validateLogin), wrapper (async (req, res) => {
+router.post('/', bodyValidator(validateLogin), wrapper ( async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
     

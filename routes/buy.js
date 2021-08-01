@@ -8,11 +8,11 @@ const wrapper = require('../middleware/wrapper');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const bodyValidator = require('../middleware/requestBodyVerifier');
-const idValidator = require("../middleware/isValidator");
+const idValidator = require("../middleware/idVerifier");
 
 const adminMiddle = [ auth, admin ];
 const authIdValidator = [ auth, idValidator ]
-const idAdminMiddleware = [ idvalidator, auth, admin ];
+const idAdminMiddleware = [ idValidator, auth, admin ];
 const idBodyAdminMiddleware = [ 
     idValidator, bodyValidator(validate), 
     auth, admin

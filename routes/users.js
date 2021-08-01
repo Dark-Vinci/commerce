@@ -2,16 +2,19 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
-const { User, validatePassword, validatePut } = require('../model/userM');
+const { 
+    User, validatePut,
+    validatePassword
+} = require('../model/userM');
 const { Product } = require('../model/product');
 const wrapper = require('../middleware/wrapper');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 const bodyValidator = require('../middleware/requestBodyVerifier');
-const idValidator = require("../middleware/isValidator");
+const idValidator = require("../middleware/idVerifier");
 
 const adminMiddle = [ auth, admin ];
-const adminIdMiddleware = [ idValidator, auth, admin];
+const adminIdMiddleware = [ idValidator, auth, admin ];
 const authAdminIdBodyMiddleware = [ 
     idValidator, auth, 
     admin, bodyValidator(validatePut) 
@@ -52,8 +55,19 @@ router.get('/me', auth, wrapper ( async (req, res) => {
     }
 }));
 
+router.get('/length-of-cart', auth, wrapper ( async (req, res) => {
+    const userId = req.user._id;
 
-// ** new handler
+    const user = await User.findById(userId);
+    const toReturn = user.cart.length;
+
+    res.status(200).json({
+        status: 200,
+        message: 'success',
+        data: toReturn
+    })
+}))
+
 router.get('/:id', adminIdMiddleware, wrapper ( async (req, res) => {
     const { id } = req.params;
 
@@ -93,12 +107,12 @@ router.put('/add-to-cart/:productId', authIdMiddleware, wrapper ( async (req, re
         res.status(200).json({
             status: 200,
             message: 'success',
-            data: `${ cart } has been added to your cart`
+            data: `${ product.name } has been added to your cart`
         });
     }
 }));
 
-router.put('/remove-from-cart/:productId', auth, wrapper (async (req, res) => {
+router.put('/remove-from-cart/:productId', auth, wrapper ( async (req, res) => {
     const id = req.user._id;
     const { productId } = req.params;
 
@@ -119,12 +133,12 @@ router.put('/remove-from-cart/:productId', auth, wrapper (async (req, res) => {
         res.status(200).json({
             status: 200,
             message: "success",
-            data: `${ cart } has been removed from your cart..`
+            data: ` ${ productId } has been removed from your cart..`
         });
     }
 }));
 
-router.post('/logout', auth , wrapper (async (req, res) => {
+router.post('/logout', auth , wrapper ( async (req, res) => {
     const token = "sadly";
     res.header('x-auth-token', token).send('good bye........');
 }));
@@ -166,47 +180,47 @@ router.put('/change-password', authBodyMiddleware, wrapper( async (req, res) => 
 
     const user = await User.findById(id);
 
-    if (!user) {
-        return res.status(404).json({
-            status: 404,
-            massage: "user not found in the database..."
+    let { oldPassword, newPassword } = req.body;
+    const isValid = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isValid) {
+        return res.status(400).json({
+            status: 400,
+            message: 'get your old password right...'
         })
     } else {
-        let { oldPassword, newPassword } = req.body;
-        const isValid = await bcrypt.compare(oldPassword, user.password);
+        const newPass = newPassword;
 
-        if (!isValid) {
-            return res.status(400).json({
-                status: 400,
-                message: 'get your old password right...'
-            })
-        } else {
-            const newPass = newPassword;
+        const salt = await bcrypt.genSalt(10);
+        newPassword = await bcrypt.hash(newPassword, salt);
 
-            const salt = await bcrypt.genSalt(10);
-            newPassword = await bcrypt.hash(newPassword, salt);
+        user.password = newPassword;
+        await user.save();
 
-            user.password = newPassword;
-            await user.save();
-
-            res.status(200).json({
-                status: 200,
-                message: "success",
-                data: `your new password is ${ newPass }`
-            })
-        }
+        res.status(200).json({
+            status: 200,
+            message: "success",
+            data: `your new password is ${ newPass }`
+        })
     }
 }));
 
-router.delete('/:id', adminIdMiddleware, wrapper (async (req, res) => {
+router.delete('/:id', adminIdMiddleware, wrapper ( async (req, res) => {
     const { id } = req.params;
 
     const user = await User.findByIdAndRemove(id);
 
     if (!user) {
-        return res.status(400).send('no such user in the db...');
+        return res.status(404).json({
+            status: 400,
+            message: 'no such user in the db...',
+        })
     } else {
-        res.send(`the user ${ id } has been removed from the db...`)
+        res.status(200).json({
+            status: 200,
+            message: 'success',
+            data: `the user ${ id } has been removed from the db...`
+        })
     }
 }));
 

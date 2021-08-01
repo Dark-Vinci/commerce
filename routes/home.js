@@ -9,14 +9,14 @@ const admin = require('../middleware/admin');
 const utils = require('../utils/getRandom');
 
 const bodyValidator = require('../middleware/requestBodyVerifier');
-const idValidator = require("../middleware/isValidator");
+const idValidator = require("../middleware/idVerifier");
 
 const idAndBodyMiddleware = [ idValidator, bodyValidator(validatePut) ];
 const adminBodyMiddleware = [ auth, admin, bodyValidator(validate) ]
 const adminMiddleware = [ auth, admin ];
 const idAndAdminMiddleware = [ idValidator, auth, admin ]
 
-router.get('/', wrapper (async (req, res) => {
+router.get('/', wrapper ( async (req, res) => {
     const homes = await Home.find({ isPublished: true })
         .sort({ createdAt: -1 });
     const home = homes[0];
@@ -32,10 +32,10 @@ router.get('/', wrapper (async (req, res) => {
         res.status(200).json({
             status: 200,
             message: 'success',
-            data: productsToReturn
+            data: { product: productsToReturn }
         });
     } else {
-        const toSend = [ home, productsToReturn ];
+        const toSend = { home, productsToReturn };
 
         res.status(200).json({
             status: 200,
@@ -56,7 +56,7 @@ router.get('/all', adminMiddleware, wrapper( async (req, res) => {
     });
 }));
 
-router.get('/all-published', adminMiddleware, wrapper(async (req, res) => {
+router.get('/all-published', adminMiddleware, wrapper( async (req, res) => {
     const homes = await Home.find({ isPublished: true })
         .sort({ createdAt: -1 })    
 
@@ -67,7 +67,7 @@ router.get('/all-published', adminMiddleware, wrapper(async (req, res) => {
     });
 }));
 
-router.get('/all-non-published',adminMiddleware, wrapper( async (req, res) => {
+router.get('/all-non-published', adminMiddleware, wrapper( async (req, res) => {
     const homes = await Home.find({ isPublished: false })
         .sort({ createdAt: -1 });
 
@@ -116,7 +116,7 @@ router.post('/', adminBodyMiddleware, wrapper( async (req, res) => {
     });
 }));
 
-router.put('/:id', idAndBodyMiddleware, wrapper( async (req, res) => {
+router.put('/edit/:id', idAndBodyMiddleware, wrapper( async (req, res) => {
     const { id } = req.params;
     const home = await Home.findById(id);
 
