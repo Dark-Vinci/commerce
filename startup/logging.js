@@ -1,5 +1,5 @@
 const winston = require('winston');
-require('winston-mongodb')
+// require('winston-mongodb');
 
 module.exports = function () {
     process.on('uncaughtException', (err) => {
@@ -13,9 +13,9 @@ module.exports = function () {
 
     winston.add(new winston.transports.File({ filename: 'l.log' }));
     winston.add(new winston.transports.Console({ colorize: true, prettyPrint: true }))
-    winston.add(new winston.transports.MongoDB({
-        db: 'mongodb://localhost/videoly',
-        level: 'info'
-        })
-    ); 
+    // winston.add(new winston.transports.MongoDB({
+    //     db: 'mongodb://localhost/videoly',
+    //     level: 'info'
+    //     })
+    // ); 
 }

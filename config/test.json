@@ -1,10 +1,10 @@
 {
     "name": "ecommerce",
-    "jwtKey": "",
+    "jwtKey": "1234",
     "cloudinary": {
         "cloudName": "",
         "apiKey": "",
         "apiSecrete": ""
     },
-    "db": "mongodb://localhost/ecom"
+    "db": "mongodb://localhost/ecom_test"
 }

@@ -25,7 +25,7 @@ const userSchema = new Schema({
         type: String,
         required: true,
         minlength: 11,
-        maxlength: 15,
+        maxlength: 16,
         trim: true,
         unique: true
     },
@@ -87,6 +87,7 @@ function validate(inp) {
             .max(16),
 
         email: Joi.string()
+            .email()
             .required()
             .min(5)
             .max(200),
