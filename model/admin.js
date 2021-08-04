@@ -9,7 +9,7 @@ const adminSchema = new Schema({
         type: String,
         required: true,
         minlength: 5,
-        maxlength: 100
+        maxlength: 50
     },
 
     email: {
@@ -54,7 +54,7 @@ function validate(inp) {
         name: Joi.string()
             .required()
             .min(5)
-            .max(100),
+            .max(50),
 
         email: Joi.string()
             .email()
@@ -120,7 +120,7 @@ function validateIn (inp) {
         .email()
         .required()
         .min(7)
-        .max(100),
+        .max(50),
 
     password: Joi.string()
         .required()

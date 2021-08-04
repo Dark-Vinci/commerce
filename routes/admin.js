@@ -100,7 +100,7 @@ router.post('/register', bodyValidator(validate), wrapper ( async (req, res) => 
             await admin.save();
 
             const token = admin.generateToken();
-            const toSend = _.pick(admin, ['email', 'name', 'phoneNumber', 'superAdmin', 'id']);
+            const toSend = _.pick(admin, ['email', 'name', 'phoneNumber', 'superAdmin', '_id']);
 
             res.header('x-auth-token', token).status(201).json({
                 status: 201,
